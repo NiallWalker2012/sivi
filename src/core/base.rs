@@ -17,7 +17,7 @@ pub fn start(target_path: PathBuf) -> Result<()> {
             return Ok(());
         }
     };
-    if let Err(why) = input::input::get_input(contents) {
+    if let Err(why) = input::get_input(contents) {
         println!("Could not get user input: {why}");
         return Ok(());
     }
