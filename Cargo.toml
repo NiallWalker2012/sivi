@@ -1,0 +1,8 @@
+[package]
+name = "sivi"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.29"
+clap = { version = "4.5.4", features = ["derive"] }
