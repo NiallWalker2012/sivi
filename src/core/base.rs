@@ -9,7 +9,7 @@ use std::io::{
 };
 use std::path::PathBuf;
 
-pub fn start(target_path: PathBuf) -> Result<()> {
+pub fn start(target_path: PathBuf, file_name: String) -> Result<()> {
     let contents = match load::load_file(target_path) {
         Ok(contents) => contents,
         Err(why) => {
@@ -17,7 +17,7 @@ pub fn start(target_path: PathBuf) -> Result<()> {
             return Ok(());
         }
     };
-    if let Err(why) = input::get_input(contents) {
+    if let Err(why) = input::get_input(contents, file_name) {
         println!("Could not get user input: {why}");
         return Ok(());
     }

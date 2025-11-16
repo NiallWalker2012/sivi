@@ -35,7 +35,7 @@ fn main() -> Result<()> {
     if targ_check_path.exists() {
         if targ_check_path.is_dir() {       //If the argument is a folder, go to file explorer
 
-            env::set_current_dir(target_name)?;
+            env::set_current_dir(&target_name)?;
             targ_path = match explorer::main() {            //Open file explorer from explorer.rs 
                 Err(why) => {       //Exit if a function fails in explorer.rs
                     eprintln!("Failed to get target: {why}");
@@ -49,17 +49,27 @@ fn main() -> Result<()> {
             };
             print!("\x1B[H\x1B[2J");            //ANSI escape code: clear terminal
         } else {
-            targ_path = Some(PathBuf::from(target_name));             //Otherwise, continue as normal
+            targ_path = Some(PathBuf::from(target_name.clone()));             //Otherwise, continue as normal
         }
     } else {
         eprintln!("Error: path {} does not exist", target_name);
+        let _ = cleanup()?;
         return Ok(());
     }
     
-    disable_raw_mode()?;
-    let _ = core::base::start(targ_path.unwrap())?;
+    //Start the editor
+    if let Err(why) = core::base::start(targ_path.unwrap(), target_name.clone()) {
+        eprintln!("Could not start editor: {why}");
+        let _ = cleanup()?;
+    }
 
     //Re-do cleanup to ensure a smooth exit 
+    let _ = cleanup()?;
+
+    Ok(())
+}
+
+fn cleanup() -> Result<()> {
     execute!(stdout(), cursor::Show)?;
     disable_raw_mode()?;
 

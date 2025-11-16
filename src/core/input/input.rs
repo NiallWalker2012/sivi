@@ -33,11 +33,12 @@ struct FileConts {
 }
 
 impl FileConts {
-    fn new() -> Self {
+    fn new(file_name: String) -> Self {
         Self {
             buffer: vec![String::new()],
             x_pos: 0,
             y_pos: 0,
+            f_name: file_name,
         }
     }
 
@@ -53,7 +54,7 @@ impl FileConts {
 
     fn draw(&self) -> crossterm::Result<()> {
         let (width, height) = terminal::size()?;
-        let height = height as u16;
+        let height = height as usize;
         //Leave last line for cleaner TUI 
         let text_height = if height > 1 { height - 1 } else { 0 };
 
@@ -76,8 +77,8 @@ impl FileConts {
     }
 }
 
-pub fn get_input(file_contents: String) -> Result<()> {
-    let mut contents = FileConts::new();
+pub fn get_input(file_contents: String, f_name: String) -> Result<()> {
+    let mut contents = FileConts::new(f_name);
     
     contents.vectorize(file_contents);
 
