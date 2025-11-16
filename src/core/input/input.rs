@@ -8,7 +8,8 @@ use crossterm::{
     execute,
     style::{
         Color,
-        Stylize 
+        Stylize,
+        Print,
     },
     terminal::{
         self,
@@ -21,6 +22,7 @@ use crossterm::{
 use std::io::{
     Result,
     Write,
+    stdout
 };
 
 struct FileConts {
@@ -52,7 +54,7 @@ impl FileConts {
         Ok(())
     }
 
-    fn draw(&self) -> crossterm::Result<()> {
+    fn draw(&self) -> Result<()> {
         let (width, height) = terminal::size()?;
         let height = height as usize;
         //Leave last line for cleaner TUI 
@@ -74,6 +76,7 @@ impl FileConts {
                 })
             )?;
         }
+        Ok(())
     }
 }
 
@@ -85,5 +88,6 @@ pub fn get_input(file_contents: String, f_name: String) -> Result<()> {
     for i in contents.buffer {
         println!("{}", i);
     }
+
     Ok(())
 }
