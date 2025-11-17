@@ -19,17 +19,19 @@ use crossterm::{
     },
     queue,
 };
+use crate::core::input::draw;
+
 use std::io::{
     Result,
     Write,
     stdout
 };
 
-struct FileConts {
-    buffer: Vec<String>,
-    x_pos: u32,
-    y_pos: u32,
-    f_name: String,     //File name
+pub struct FileConts {
+    pub buffer: Vec<String>,
+    pub x_pos: u32,
+    pub y_pos: u32,
+    pub f_name: String,     //File name
     //curr_line: usize,  (until line numbers are impltemented in load.rs, this feature will not be
     //used)
 }
@@ -53,40 +55,24 @@ impl FileConts {
         
         Ok(())
     }
-
-    fn draw(&self) -> Result<()> {
-        let (width, height) = terminal::size()?;
-        let height = height as usize;
-        //Leave last line for cleaner TUI 
-        let text_height = if height > 1 { height - 1 } else { 0 };
-
-        execute!(stdout(), terminal::Clear(ClearType::All))?;
-
-        for (i, line) in self.buffer.iter().take(text_height).enumerate() {
-            queue!(
-                stdout(),
-                cursor::MoveTo(0, i as u16),
-                Print(if line.len() > width as usize {
-                    //Trime appropriately
-                    let mut pos = line.clone();
-                    pos.truncate(width as usize);
-                    pos
-                } else {
-                    line.clone()
-                })
-            )?;
-        }
-        Ok(())
-    }
 }
 
 pub fn get_input(file_contents: String, f_name: String) -> Result<()> {
     let mut contents = FileConts::new(f_name);
     
-    contents.vectorize(file_contents);
-
-    for i in contents.buffer {
+    if let Err(why) = contents.vectorize(file_contents) {
+        eprintln!("Failed to vectorize contents: {why}");
+        return Ok(());
+    }
+    
+    disable_raw_mode()?;
+    for i in contents.buffer.clone() {
         println!("{}", i);
+    }
+    enable_raw_mode()?;
+    if let Err(why) = draw::draw(contents) {
+        eprintln!("Error whilst drawing contents: {}", why);
+        return Ok(());
     }
 
     Ok(())
