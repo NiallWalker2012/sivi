@@ -32,7 +32,8 @@ pub struct FileConts {
     pub x_pos: u32,
     pub y_pos: u32,
     pub f_name: String,     //File name
-    line: u32,  
+    line: u32,
+    pub status: String,
 }
 
 impl FileConts {
@@ -43,6 +44,7 @@ impl FileConts {
             y_pos: 0,
             f_name: file_name,
             line: 1,
+            status: String::from("Ctrl-S to save, Ctrl-Q to quit"),
         }
     }
 
@@ -67,17 +69,17 @@ pub fn get_input(file_contents: String, f_name: String) -> Result<()> {
     
 
     disable_raw_mode()?;
-    for item in contents.buffer.clone() {
+    /*for item in contents.buffer.clone() {
         println!("{}. {}", contents.line, item);      //In the mean time, this is just here for visualisation and testing
         contents.line += 1;
-    }
+    }*/
     enable_raw_mode()?;
 
-    /*if let Err(why) = draw::draw(contents) {
+    if let Err(why) = draw::draw(contents) {
         eprintln!("Error whilst drawing contents: {}", why);
         return Ok(());
     }
-    */
+
 
     Ok(())
 }
