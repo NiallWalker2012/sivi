@@ -32,8 +32,7 @@ pub struct FileConts {
     pub x_pos: u32,
     pub y_pos: u32,
     pub f_name: String,     //File name
-    //curr_line: usize,  (until line numbers are impltemented in load.rs, this feature will not be
-    //used)
+    line: u32,  
 }
 
 impl FileConts {
@@ -43,6 +42,7 @@ impl FileConts {
             x_pos: 0,
             y_pos: 0,
             f_name: file_name,
+            line: 1,
         }
     }
 
@@ -65,12 +65,11 @@ pub fn get_input(file_contents: String, f_name: String) -> Result<()> {
         return Ok(());
     }
     
-    let mut line: u32 = 1;
 
     disable_raw_mode()?;
     for item in contents.buffer.clone() {
-        println!("{}. {}", line, item);      //In the mean time, this is just here for visualisation and testing
-        line += 1;
+        println!("{}. {}", contents.line, item);      //In the mean time, this is just here for visualisation and testing
+        contents.line += 1;
     }
     enable_raw_mode()?;
 
