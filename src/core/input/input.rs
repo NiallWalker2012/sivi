@@ -3,7 +3,7 @@ use crossterm::{
     event::{
         self,
         Event,
-        KeyCode 
+        KeyCode
     },
     execute,
     style::{
@@ -65,15 +65,20 @@ pub fn get_input(file_contents: String, f_name: String) -> Result<()> {
         return Ok(());
     }
     
+    let mut line: u32 = 1;
+
     disable_raw_mode()?;
-    for i in contents.buffer.clone() {
-        println!("{}", i);
+    for item in contents.buffer.clone() {
+        println!("{}. {}", line, item);      //In the mean time, this is just here for visualisation and testing
+        line += 1;
     }
     enable_raw_mode()?;
-    if let Err(why) = draw::draw(contents) {
+
+    /*if let Err(why) = draw::draw(contents) {
         eprintln!("Error whilst drawing contents: {}", why);
         return Ok(());
     }
+    */
 
     Ok(())
 }
