@@ -30,7 +30,7 @@ use std::io::{
 
 use crate::core::input::input::FileConts;
 
-pub fn draw(conts: FileConts) -> Result<()> {
+pub fn draw(conts: &mut FileConts) -> Result<()> {
     let mut stdout = stdout();
 
     let (width, height) = terminal::size()?;
