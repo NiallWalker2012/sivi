@@ -8,18 +8,11 @@ use crossterm::{
         KeyEvent,
     },
     execute,
-    style::{
-        Color,
-        Stylize,
-        Print,
-    },
     terminal::{
         self,
-        ClearType,
         disable_raw_mode,
         enable_raw_mode
     },
-    queue,
 };
 use crate::core::input::{
     draw,
@@ -37,7 +30,6 @@ use crate::core::input::{
 
 use std::io::{
     Result,
-    Write,
     stdout
 };
 use std::time::Duration;

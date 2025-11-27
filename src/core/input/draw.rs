@@ -1,14 +1,6 @@
 use crossterm::{
     cursor,
-    event::{
-        self,
-        Event,
-        KeyCode 
-    },
-    execute,
     style::{
-        Color,
-        Stylize,
         Print,
         Attribute,
         SetAttribute,
@@ -16,8 +8,6 @@ use crossterm::{
     terminal::{
         self,
         ClearType,
-        disable_raw_mode,
-        enable_raw_mode
     },
     queue,
 };
