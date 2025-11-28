@@ -49,12 +49,8 @@ pub fn draw(conts: &mut FileConts) -> Result<()> {
 
     // status bar on last line
     let total_chars: usize = conts.buffer.iter().map(|l| l.len()).sum();
-    let file_name = if conts.f_name.is_empty() {
-        "(no file)"
-    } else {
-        &conts.f_name
-    };
-    let mut status_full = format!("{} — {} chars | {}", file_name, total_chars, conts.status);
+    let file_name = &conts.f_name;
+    let mut status_full = format!("{} — {} chars | {}", file_name.display(), total_chars, conts.status);
 
     if status_full.len() > width as usize {
         status_full.truncate(width as usize);

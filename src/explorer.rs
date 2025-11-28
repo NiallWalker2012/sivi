@@ -30,6 +30,7 @@ use std::io::{
     Write
 };
 use std::fs;
+
 use std::path::PathBuf;
 
 pub fn main() -> Result<Option<PathBuf>> {
@@ -133,7 +134,6 @@ pub fn main() -> Result<Option<PathBuf>> {
                     //If it is a file, return that path
                     return Ok(Some(path));
                 }
-                //Ignore any other keypress
                 _ => {}
             }
         }

@@ -26,7 +26,7 @@ use crate::core::input::{
     },
 };
 
-
+use std::path::PathBuf;
 
 use std::io::{
     Result,
@@ -38,12 +38,12 @@ pub struct FileConts {
     pub buffer: Vec<String>,
     pub x_pos: u32,
     pub y_pos: u32,
-    pub f_name: String,     //File name
+    pub f_name: PathBuf,     //File name
     pub status: String,
 }
 
 impl FileConts {
-    fn new(file_name: String) -> Self {
+    fn new(file_name: PathBuf) -> Self {
         Self {
             buffer: vec![String::new()],
             x_pos: 0,
@@ -64,7 +64,7 @@ impl FileConts {
     }
 }
 
-pub fn get_input(file_contents: String, f_name: String) -> Result<()> {
+pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
     
     print!("\x1B[H\x1B[2J");
 

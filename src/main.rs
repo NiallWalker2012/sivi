@@ -38,7 +38,6 @@ fn main() -> Result<()> {
     }
 
     if targ_check_path.is_dir() {       //If the argument is a folder, go to file explorer
-
         env::set_current_dir(&target_name)?;
         targ_path = match explorer::main() {            //Open file explorer from explorer.rs 
         Err(why) => {       //Exit if a function fails in explorer.rs
@@ -57,7 +56,7 @@ fn main() -> Result<()> {
     }
         
     //Start the editor
-    if let Err(why) = core::base::start(targ_path.unwrap(), target_name.clone()) {
+    if let Err(why) = core::base::start(targ_path.unwrap()) {
         eprintln!("Could not start editor: {why}");
         let _ = cleanup()?;
     }
