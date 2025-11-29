@@ -91,7 +91,7 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
             Ok(val) => val,
         };
         
-        if event::poll(Duration::from_millis(200))? {
+        if event::poll(Duration::from_millis(50))? {
             // Reads the raw user input
             match event::read()? {
                 Event::Key(KeyEvent { code, modifiers, .. }) => {

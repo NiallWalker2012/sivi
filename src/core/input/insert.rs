@@ -27,14 +27,10 @@ pub fn insert_line(contents: &mut FileConts, g_len: Vec<usize>) {
     let mut line = std::mem::take(&mut contents.buffer[contents.y_pos]);
 
     // Convert x_pos (char index) to byte index
-    let byte_idx = line
-        .char_indices()
-        .nth(contents.x_pos.saturating_sub(g_len[contents.y_pos]))
-        .map(|(i, _)| i)
-        .unwrap_or(line.len());
-
+    let idx = contents.x_pos.saturating_sub(g_len[contents.y_pos]);
+        
     // Split line at cursor
-    let new_line = line.split_off(byte_idx);
+    let new_line = line.split_off(idx);
 
     // Put the original line back
     contents.buffer[contents.y_pos] = line;
