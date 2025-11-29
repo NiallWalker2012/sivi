@@ -11,7 +11,8 @@ use crossterm::{
     terminal::{
         self,
         disable_raw_mode,
-        enable_raw_mode
+        enable_raw_mode,
+        LeaveAlternateScreen,
     },
 };
 use crate::core::input::{
@@ -36,8 +37,8 @@ use std::time::Duration;
 
 pub struct FileConts {
     pub buffer: Vec<String>,
-    pub x_pos: u32,
-    pub y_pos: u32,
+    pub x_pos: usize,
+    pub y_pos: usize,
     pub f_name: PathBuf,     //File name
     pub status: String,
 }
@@ -46,7 +47,7 @@ impl FileConts {
     fn new(file_name: PathBuf) -> Self {
         Self {
             buffer: vec![String::new()],
-            x_pos: 0,
+            x_pos: 6,
             y_pos: 0,
             f_name: file_name,
             status: String::from("Ctrl+s to save, Ctrl+q to quit"),
@@ -65,6 +66,8 @@ impl FileConts {
 }
 
 pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
+
+    execute!(stdout(), cursor::Show)?;
     
     print!("\x1B[H\x1B[2J");
 
