@@ -46,10 +46,11 @@ impl FileConts {
     fn new(file_name: PathBuf) -> Self {
         Self {
             buffer: vec![String::new()],
+            // To allow line numbering
             x_pos: 6,
             y_pos: 0,
             f_name: file_name,
-            status: String::from("Ctrl+s to save, Ctrl+q to quit"),
+            status: "Ctrl+s to save, Ctrl+q to quit".to_string(),
         }
     }
 
@@ -79,52 +80,59 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
     
     enable_raw_mode()?;
 
-    // I'd suggest that you skip this next bit...
+    // This next bit is very ugly...
     
     'main: loop {
         if let Err(why) = draw::draw(&mut contents) {
             eprintln!("Error whilst drawing contents: {}", why);
             return Ok(());
         }
-
+        
         if event::poll(Duration::from_millis(200))? {
+            // Reads the raw user input
             match event::read()? {
                 Event::Key(KeyEvent { code, modifiers, .. }) => {
+                    // Compares the key pressed and the modifier (e.g. Ctrl) and selectes the
+                    // corresponding action
                     match (code, modifiers) {
+                        // If Ctrl + q is pressed, exit
                         (KeyCode::Char('q'), KeyModifiers::CONTROL) => {
                             print!("\x1B[H\x1B[2J");
+                            // Breaks from the main loop and exits
                             break 'main;
                         }
+                        // If Ctrl + s is pressed, save
                         (KeyCode::Char('s'), KeyModifiers::CONTROL) => {
                             if let Err(why) = save::save(&mut contents) {
                                 contents.status = format!("Failed to save contents: {}", why);
                             }
                         }
+                        // If any character is pressed, with either no or a shift modifier, insert
                         (KeyCode::Char(input), KeyModifiers::NONE) => {
-                            if let Err(why) = insert::insert_char(&mut contents, input) {
-                                contents.status = format!("Failed to insert char: {}", why);
-                            }
+                            insert::insert_char(&mut contents, input);
                         }
                         (KeyCode::Char(input), KeyModifiers::SHIFT) => {
-                            if let Err(why) = insert::insert_char(&mut contents, input) {
-                                contents.status = format!("Failed to insert char: {}", why);
-                            }
+                            insert::insert_char(&mut contents, input);
                         }
+                        // If enter is pressed
                         (KeyCode::Enter, _) => {
-                            if let Err(why) = insert::insert_line(&mut contents) {
-                                contents.status = format!("Failed to insert newline: {}", why);
+                            insert::insert_line(&mut contents);
+                        }
+                        // If backspace is pressed
+                        (KeyCode::Backspace, _) | (KeyCode::Char('\u{7f}'), _) | (KeyCode::Char('h'), KeyModifiers::CONTROL) => {
+                            insert::backspace(&mut contents); 
+                        }
+                        // If tab is pressed
+                        (KeyCode::Tab, _) => {
+                            for i in 0..4 {
+                                insert::insert_char(&mut contents, ' ');
                             }
                         }
-                        (KeyCode::Backspace, _) => {
-                            if let Err(why) = insert::backspace(&mut contents) {
-                                contents.status = format!("Failed to backspace: {}", why);
-                            }
-                        }
+                        // If delete is pressed
                         (KeyCode::Delete, _) => {
-                            if let Err(why) = insert::delete(&mut contents) {
-                                contents.status = format!("Failed to delete: {}", why);
-                            }
+                            insert::delete(&mut contents);
                         }
+                        // If arrow keys are pressed
                         (KeyCode::Left, _) => {
                             move_left(&mut contents);
                         }

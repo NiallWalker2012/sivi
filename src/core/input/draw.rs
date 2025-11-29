@@ -31,11 +31,11 @@ pub fn draw(conts: &mut FileConts) -> Result<()> {
     queue!(stdout, terminal::Clear(ClearType::All))?;
 
     for (i, line) in conts.buffer.iter().take(text_height).enumerate() {
+        let line_numberer: String = format!("{}.    ", i + 1);
         queue!(
             stdout,
             cursor::MoveTo(0, i as u16),
-            Print(i + 1),
-            Print(".    "),
+            Print(line_numberer),
             Print(if line.len() > width as usize {
                 // trim to terminal width
                 let mut s = line.clone();
