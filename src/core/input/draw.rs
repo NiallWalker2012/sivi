@@ -20,7 +20,7 @@ use std::io::{
 
 use crate::core::input::input::FileConts;
 
-pub fn draw(conts: &mut FileConts) -> Result<()> {
+pub fn draw(conts: &mut FileConts) -> Result<Vec<usize>> {
     let mut stdout = stdout();
 
     let (width, height) = terminal::size()?;
@@ -30,7 +30,10 @@ pub fn draw(conts: &mut FileConts) -> Result<()> {
 
     queue!(stdout, terminal::Clear(ClearType::All))?;
 
+    let mut gutter_len: Vec<usize> = vec![];
+
     for (i, line) in conts.buffer.iter().take(text_height).enumerate() {
+
         let line_numberer: String = format!("{}.    ", i + 1);
         queue!(
             stdout,
@@ -45,6 +48,7 @@ pub fn draw(conts: &mut FileConts) -> Result<()> {
                 line.clone()
             })
         )?;
+        gutter_len.push(i.to_string().len() + 5);
     }
 
     // status bar on last line
@@ -72,6 +76,6 @@ pub fn draw(conts: &mut FileConts) -> Result<()> {
     queue!(stdout, cursor::MoveTo(cx, cy))?;
 
     stdout.flush()?;
-    Ok(())
+    return Ok(gutter_len);
 }
 

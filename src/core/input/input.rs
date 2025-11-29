@@ -83,10 +83,13 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
     // This next bit is very ugly...
     
     'main: loop {
-        if let Err(why) = draw::draw(&mut contents) {
-            eprintln!("Error whilst drawing contents: {}", why);
-            return Ok(());
-        }
+        let gutter_len: Vec<usize> = match draw::draw(&mut contents) {
+            Err(why) => {
+                eprintln!("Error whilst drawing contents: {}", why);
+                return Ok(());
+            }
+            Ok(val) => val,
+        };
         
         if event::poll(Duration::from_millis(200))? {
             // Reads the raw user input
@@ -109,41 +112,41 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
                         }
                         // If any character is pressed, with either no or a shift modifier, insert
                         (KeyCode::Char(input), KeyModifiers::NONE) => {
-                            insert::insert_char(&mut contents, input);
+                            insert::insert_char(&mut contents, input, gutter_len.clone());
                         }
                         (KeyCode::Char(input), KeyModifiers::SHIFT) => {
-                            insert::insert_char(&mut contents, input);
+                            insert::insert_char(&mut contents, input, gutter_len.clone());
                         }
                         // If enter is pressed
                         (KeyCode::Enter, _) => {
-                            insert::insert_line(&mut contents);
+                            insert::insert_line(&mut contents, gutter_len.clone());
                         }
                         // If backspace is pressed
                         (KeyCode::Backspace, _) | (KeyCode::Char('\u{7f}'), _) | (KeyCode::Char('h'), KeyModifiers::CONTROL) => {
-                            insert::backspace(&mut contents); 
+                            insert::backspace(&mut contents, gutter_len.clone()); 
                         }
                         // If tab is pressed
                         (KeyCode::Tab, _) => {
-                            for i in 0..4 {
-                                insert::insert_char(&mut contents, ' ');
+                            for _i in 0..4 {
+                                insert::insert_char(&mut contents, ' ', gutter_len.clone());
                             }
                         }
                         // If delete is pressed
                         (KeyCode::Delete, _) => {
-                            insert::delete(&mut contents);
+                            insert::delete(&mut contents, gutter_len.clone());
                         }
                         // If arrow keys are pressed
                         (KeyCode::Left, _) => {
-                            move_left(&mut contents);
+                            move_left(&mut contents, gutter_len.clone());
                         }
                         (KeyCode::Right, _) => {
-                            move_right(&mut contents);
+                            move_right(&mut contents, gutter_len.clone());
                         }
                         (KeyCode::Up, _) => {
-                            move_up(&mut contents);
+                            move_up(&mut contents, gutter_len.clone());
                         }
                         (KeyCode::Down, _) => {
-                            move_down(&mut contents); 
+                            move_down(&mut contents, gutter_len.clone()); 
                         }
                         _ => {}
                     }
