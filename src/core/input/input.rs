@@ -12,7 +12,6 @@ use crossterm::{
         self,
         disable_raw_mode,
         enable_raw_mode,
-        LeaveAlternateScreen,
     },
 };
 use crate::core::input::{
@@ -127,24 +126,16 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
                             }
                         }
                         (KeyCode::Left, _) => {
-                            if let Err(why) = move_left(&mut contents) {
-                                contents.status = format!("Failed to move left: {}", why);
-                            }
+                            move_left(&mut contents);
                         }
                         (KeyCode::Right, _) => {
-                            if let Err(why) = move_right(&mut contents) {
-                                contents.status = format!("Failed to move right: {}", why);
-                            }
+                            move_right(&mut contents);
                         }
                         (KeyCode::Up, _) => {
-                            if let Err(why) = move_up(&mut contents) {
-                                contents.status = format!("Failed to move up: {}", why);
-                            }
+                            move_up(&mut contents);
                         }
                         (KeyCode::Down, _) => {
-                            if let Err(why) = move_down(&mut contents) {
-                                contents.status = format!("Failed to move down: {}", why);
-                            }
+                            move_down(&mut contents); 
                         }
                         _ => {}
                     }
