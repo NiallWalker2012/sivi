@@ -15,29 +15,38 @@ pub fn insert_char(contents: &mut FileConts, input: char, g_len: Vec<usize>) {
 }
 
 pub fn insert_line(contents: &mut FileConts, g_len: Vec<usize>) {
+    // If cursor is beyond the last line, add a new empty line
     if contents.y_pos >= contents.buffer.len() {
         contents.buffer.push(String::new());
-        // Adjust cursor positioning
-        contents.x_pos = g_len[contents.y_pos];
+        contents.x_pos = g_len[contents.y_pos]; // start after gutter
         contents.y_pos += 1;
         return;
     }
-    let line = &mut contents.buffer[contents.y_pos];
-    // Slice previous line by x position
-    let mut new_line = String::new();
-    if contents.x_pos <= line.len() {
-        new_line = line.split_off(contents.x_pos);
-    }
-    contents.y_pos += 1;
-    contents.x_pos = g_len[contents.y_pos];
 
-    if contents.x_pos <= line.len() {
-        // Insert the new line to buffer variable
-        contents.buffer.insert(contents.y_pos, new_line);
-    } else {
-        contents.buffer.push(new_line);
-    }
+    // Take ownership of the current line to safely mutate buffer
+    let mut line = std::mem::take(&mut contents.buffer[contents.y_pos]);
+
+    // Convert x_pos (char index) to byte index
+    let byte_idx = line
+        .char_indices()
+        .nth(contents.x_pos.saturating_sub(g_len[contents.y_pos]))
+        .map(|(i, _)| i)
+        .unwrap_or(line.len());
+
+    // Split line at cursor
+    let new_line = line.split_off(byte_idx);
+
+    // Put the original line back
+    contents.buffer[contents.y_pos] = line;
+
+    // Move cursor to the new line
+    contents.y_pos += 1;
+    contents.x_pos = g_len[contents.y_pos - 1]; // start after gutter
+
+    // Insert the new line into the buffer
+    contents.buffer.insert(contents.y_pos, new_line);
 }
+
 
 pub fn backspace(contents: &mut FileConts, g_len: Vec<usize>) {
     // If at very beginning, nothing to delete
