@@ -157,7 +157,6 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
         }
     }
 
-    // Now you see why I said that
 
     execute!(stdout(), terminal::LeaveAlternateScreen, cursor::Show)?;
     disable_raw_mode()?;
