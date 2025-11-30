@@ -1,4 +1,5 @@
 use crate::core::input::input::FileConts;
+use std::mem::take;
 
 pub fn insert_char(contents: &mut FileConts, input: char, g_len: Vec<usize>) {
     if contents.y_pos >= contents.buffer.len() {
@@ -24,7 +25,7 @@ pub fn insert_line(contents: &mut FileConts, g_len: Vec<usize>) {
     }
 
     // Take ownership of the current line to safely mutate buffer
-    let mut line = std::mem::take(&mut contents.buffer[contents.y_pos]);
+    let mut line = take(&mut contents.buffer[contents.y_pos]);
 
     // Convert x_pos (char index) to byte index
     let idx = contents.x_pos.saturating_sub(g_len[contents.y_pos]);
@@ -42,6 +43,7 @@ pub fn insert_line(contents: &mut FileConts, g_len: Vec<usize>) {
     // Insert the new line into the buffer
     contents.buffer.insert(contents.y_pos, new_line);
 }
+
 
 
 pub fn backspace(contents: &mut FileConts, g_len: Vec<usize>) {
@@ -75,6 +77,7 @@ pub fn backspace(contents: &mut FileConts, g_len: Vec<usize>) {
 }
 
 pub fn delete(contents: &mut FileConts, g_len: Vec<usize>) {
+    // Create variable for buffer's y axis
     let line = &mut contents.buffer[contents.y_pos];
     
     let idx = contents.x_pos - g_len[contents.y_pos];

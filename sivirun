@@ -1,1 +1,1 @@
-cargo build --release $1 $2 $3 $4
+cargo build --release $1 $2 $3

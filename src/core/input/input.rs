@@ -9,9 +9,10 @@ use crossterm::{
     },
     execute,
     terminal::{
-        self,
         disable_raw_mode,
         enable_raw_mode,
+        LeaveAlternateScreen,
+        EnterAlternateScreen,
     },
 };
 use crate::core::input::{
@@ -67,9 +68,8 @@ impl FileConts {
 
 pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
 
-    execute!(stdout(), cursor::Show)?;
+    execute!(stdout(), EnterAlternateScreen, cursor::Show)?;
     
-    print!("\x1B[H\x1B[2J");
 
     let mut contents = FileConts::new(f_name);
     
@@ -100,7 +100,6 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
                     match (code, modifiers) {
                         // If Ctrl + q is pressed, exit
                         (KeyCode::Char('q'), KeyModifiers::CONTROL) => {
-                            print!("\x1B[H\x1B[2J");
                             // Breaks from the main loop and exits
                             break 'main;
                         }
@@ -158,7 +157,7 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
     }
 
 
-    execute!(stdout(), terminal::LeaveAlternateScreen, cursor::Show)?;
+    execute!(stdout(), LeaveAlternateScreen, cursor::Show)?;
     disable_raw_mode()?;
 
     Ok(())
