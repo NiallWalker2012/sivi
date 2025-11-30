@@ -39,8 +39,9 @@ fn main() -> Result<()> {
 
     if targ_check_path.is_dir() {       //If the argument is a folder, go to file explorer
         env::set_current_dir(&target_name)?;
-        targ_path = match explorer::main() {            //Open file explorer from explorer.rs 
+        targ_path = match explorer::get_target() {            //Open file explorer from explorer.rs 
             Err(why) => {       //Exit if a function fails in explorer.rs
+                print!("\x1B[H\x1B[2J");
                 eprintln!("Failed to get target: {why}");
                 return Ok(());
             }

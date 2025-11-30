@@ -33,7 +33,7 @@ use std::fs;
 
 use std::path::PathBuf;
 
-pub fn main() -> Result<Option<PathBuf>> {
+pub fn get_target() -> Result<Option<PathBuf>> {
     let mut selected = 0;
     let mut dir = env::current_dir()?;      //This gets the current directory (like a pwd command)
 
