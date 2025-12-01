@@ -5,15 +5,26 @@ pub fn insert_char(contents: &mut FileConts, input: char, g_len: Vec<usize>) {
     if contents.y_pos >= contents.buffer.len() {
         contents.buffer.push(String::new());
     }
+
+    let gutter = g_len[contents.y_pos];
     let line = &mut contents.buffer[contents.y_pos];
-    if contents.x_pos <= line.len() {
-        //Subtracted by 6 to account for line numbering
-        line.insert(contents.x_pos - g_len[contents.y_pos], input);
-    } else {
-        line.push(input);
-    }
+
+    // Convert display x_pos to character position in the buffer
+    let char_pos = contents.x_pos.saturating_sub(gutter);
+
+    // Convert character index to byte index
+    let byte_pos = line
+        .char_indices()
+        .nth(char_pos)
+        .map(|(i, _)| i)
+        .unwrap_or_else(|| line.len());
+
+    line.insert(byte_pos, input);
+
+    // Move visual cursor forward one display column
     contents.x_pos += 1;
 }
+
 
 pub fn insert_line(contents: &mut FileConts, g_len: Vec<usize>) {
     // If cursor is beyond the last line, add a new empty line

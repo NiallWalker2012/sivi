@@ -48,7 +48,7 @@ impl FileConts {
         Self {
             buffer: vec![String::new()],
             // To allow line numbering
-            x_pos: 6,
+            x_pos: 8,
             y_pos: 0,
             f_name: file_name,
             status: "Ctrl+s to save, Ctrl+q to quit".to_string(),

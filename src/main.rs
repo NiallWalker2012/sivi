@@ -19,6 +19,8 @@ use crossterm::{
 };
 use std::fs::File;
 
+use crate::args::Args;
+
 mod args;
 mod explorer;
 mod core;
@@ -27,7 +29,7 @@ fn main() -> Result<()> {
     //Go to parent directory - the command line argument should be in that directory
     env::set_current_dir("..")?;
 
-    let args = args::parse();       //Get the command line args from the external args from args.rs
+    let args: Args = args::parse();       //Get the command line args from the external args from args.rs
     let target_name = args.target;
 
     let targ_check_path = Path::new(&target_name);

@@ -4,6 +4,7 @@ use crossterm::{
         Print,
         Attribute,
         SetAttribute,
+        Stylize,
     },
     terminal::{
         self,
@@ -20,6 +21,20 @@ use std::io::{
 
 use crate::core::input::input::FileConts;
 
+fn make_gutter(line_num: usize) -> String {
+    let line_size = line_num.to_string().len();
+
+    let space_amount = 8 - line_size;
+    let mut gutter_conts: Vec<String> = vec![];
+
+    gutter_conts.push(line_num.to_string());
+
+    for _i in 0..space_amount {
+        gutter_conts.push(" ".to_string());
+    }
+    return gutter_conts.join("").bold().yellow().to_string();
+}
+
 pub fn draw(conts: &mut FileConts) -> Result<Vec<usize>> {
     let mut stdout = stdout();
 
@@ -33,8 +48,7 @@ pub fn draw(conts: &mut FileConts) -> Result<Vec<usize>> {
     let mut gutter_len: Vec<usize> = vec![];
 
     for (i, line) in conts.buffer.iter().take(text_height).enumerate() {
-
-        let line_numberer: String = format!("{}.    ", i + 1);
+        let line_numberer = make_gutter(i + 1); 
         queue!(
             stdout,
             cursor::MoveTo(0, i as u16),
@@ -48,7 +62,7 @@ pub fn draw(conts: &mut FileConts) -> Result<Vec<usize>> {
                 line.clone()
             })
         )?;
-        gutter_len.push(i.to_string().len() + 5);
+        gutter_len.push(8);
     }
 
     // status bar on last line
