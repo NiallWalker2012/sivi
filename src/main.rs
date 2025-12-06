@@ -15,7 +15,11 @@ use std::io::{
 use crossterm::{
     execute,
     cursor,
-    terminal::disable_raw_mode,
+    terminal::{
+        disable_raw_mode,
+        EnterAlternateScreen,
+        LeaveAlternateScreen,
+    },
 };
 use std::fs::File;
 
@@ -26,6 +30,8 @@ mod explorer;
 mod core;
 
 fn main() -> Result<()> {
+    // Enter a 'new' terminal screen 
+    execute!(stdout(), EnterAlternateScreen)?;
     //Go to parent directory - the command line argument should be in that directory
     env::set_current_dir("..")?;
 
@@ -71,7 +77,7 @@ fn main() -> Result<()> {
 }
 
 fn cleanup() -> Result<()> {
-    execute!(stdout(), cursor::Show)?;
+    execute!(stdout(), cursor::Show, LeaveAlternateScreen)?;
     disable_raw_mode()?;
 
     Ok(())

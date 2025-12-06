@@ -46,7 +46,7 @@ pub fn move_down(contents: &mut FileConts, text_height: usize) {
     }
 
     // SCROLL
-    if contents.y_pos >= contents.top_bord + text_height - 4 {
+    if contents.y_pos >= contents.top_bord + text_height - 5 {
         contents.top_bord = contents.y_pos - text_height + 1;
     }
 }

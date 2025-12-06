@@ -14,8 +14,11 @@ use crossterm::{
         LeaveAlternateScreen,
         EnterAlternateScreen,
         self,
+        Clear,
+        ClearType,
     },
 };
+
 use crate::core::input::{
     draw,
     save,
@@ -89,6 +92,7 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
     // This next bit is very ugly...
     
     'main: loop {
+        execute!(stdout(), Clear(ClearType::All))?;
         match draw::draw(&mut contents) {
             Err(why) => {
                 eprintln!("Error whilst drawing contents: {}", why);

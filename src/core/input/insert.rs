@@ -1,9 +1,5 @@
 use crate::core::input::{
-    input::FileConts,
-    scroll::{
-        scroll_up,
-        scroll_down,
-    },
+    input::FileConts, 
 };
 use std::mem::take;
 
@@ -70,7 +66,7 @@ pub fn insert_line(contents: &mut FileConts) {
 
     // Move cursor to the new line
     contents.y_pos += 1;
-    contents.x_pos = 7; // start after gutter
+    contents.x_pos = 8; // start after gutter
 
     // Insert the new line into the buffer
     contents.buffer.insert(contents.y_pos, new_line);
@@ -82,10 +78,10 @@ pub fn insert_line(contents: &mut FileConts) {
         Ok(val) => val,
     };
     // Check if it is necessary to scroll down, to prevent terminal size panics
-    if contents.y_pos >= text_height - contents.top_bord {
-        let mut cont_copy: FileConts = take(contents);
-        scroll_down(&mut cont_copy, text_height);
+    if contents.y_pos >= contents.top_bord + text_height - 5 {
+        contents.top_bord = contents.y_pos - text_height + 1;
     }
+
 }
 
 
@@ -119,9 +115,8 @@ pub fn backspace(contents: &mut FileConts) {
         
 
         // Check if it is necessary to scroll up, to prevent terminal size panics
-        if contents.top_bord > 0 && contents.y_pos <= contents.top_bord + 4 {
-            let mut cont_copy: FileConts = take(contents);
-            scroll_up(&mut cont_copy);
+        if contents.y_pos < contents.top_bord + 4 {
+            contents.top_bord = contents.y_pos;
         }
     }
 }
