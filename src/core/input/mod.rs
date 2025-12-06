@@ -3,3 +3,4 @@ pub mod draw;
 pub mod save;
 pub mod insert;
 pub mod cursor;
+pub mod scroll;

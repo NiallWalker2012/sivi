@@ -1,12 +1,33 @@
-use crate::core::input::input::FileConts;
+use crate::core::input::{
+    input::FileConts,
+    scroll::{
+        scroll_up,
+        scroll_down,
+    },
+};
 use std::mem::take;
 
-pub fn insert_char(contents: &mut FileConts, input: char, g_len: Vec<usize>) {
+use std::process::exit;
+
+use std::io::Result;
+
+
+
+fn get_height() -> Result<usize> {
+     // Get the text height
+    let (_, height) = crossterm::terminal::size()?;  
+    let text_height = height.saturating_sub(1); // leave last line for status
+    
+    return Ok(text_height.into());
+}
+
+
+pub fn insert_char(contents: &mut FileConts, input: char) {
     if contents.y_pos >= contents.buffer.len() {
         contents.buffer.push(String::new());
     }
 
-    let gutter = g_len[contents.y_pos];
+    let gutter = 8;
     let line = &mut contents.buffer[contents.y_pos];
 
     // Convert display x_pos to character position in the buffer
@@ -26,11 +47,11 @@ pub fn insert_char(contents: &mut FileConts, input: char, g_len: Vec<usize>) {
 }
 
 
-pub fn insert_line(contents: &mut FileConts, g_len: Vec<usize>) {
+pub fn insert_line(contents: &mut FileConts) {
     // If cursor is beyond the last line, add a new empty line
     if contents.y_pos >= contents.buffer.len() {
         contents.buffer.push(String::new());
-        contents.x_pos = g_len[contents.y_pos]; // start after gutter
+        contents.x_pos = 8; // start after gutter
         contents.y_pos += 1;
         return;
     }
@@ -39,7 +60,7 @@ pub fn insert_line(contents: &mut FileConts, g_len: Vec<usize>) {
     let mut line = take(&mut contents.buffer[contents.y_pos]);
 
     // Convert x_pos (char index) to byte index
-    let idx = contents.x_pos.saturating_sub(g_len[contents.y_pos]);
+    let idx = contents.x_pos.saturating_sub(8);
         
     // Split line at cursor
     let new_line = line.split_off(idx);
@@ -49,25 +70,37 @@ pub fn insert_line(contents: &mut FileConts, g_len: Vec<usize>) {
 
     // Move cursor to the new line
     contents.y_pos += 1;
-    contents.x_pos = g_len[contents.y_pos - 1]; // start after gutter
+    contents.x_pos = 7; // start after gutter
 
     // Insert the new line into the buffer
     contents.buffer.insert(contents.y_pos, new_line);
+
+    let text_height: usize = match get_height() {
+        Err(_) => {
+            exit(1);
+        }
+        Ok(val) => val,
+    };
+    // Check if it is necessary to scroll down, to prevent terminal size panics
+    if contents.y_pos >= text_height - contents.top_bord {
+        let mut cont_copy: FileConts = take(contents);
+        scroll_down(&mut cont_copy, text_height);
+    }
 }
 
 
 
-pub fn backspace(contents: &mut FileConts, g_len: Vec<usize>) {
+pub fn backspace(contents: &mut FileConts) {
     // If at very beginning, nothing to delete
-    if contents.x_pos == g_len[contents.y_pos] && contents.y_pos == 0 {
+    if contents.x_pos == 8 && contents.y_pos == 0 {
         return;
     }
 
-    if contents.x_pos > g_len[contents.y_pos] {
+    if contents.x_pos > 8 {
         // Backspace within the current line
         let line = &mut contents.buffer[contents.y_pos];
 
-        let idx = contents.x_pos - g_len[contents.y_pos]; // convert to buffer index
+        let idx = contents.x_pos - 8; // convert to buffer index
 
         if idx > 0 && idx <= line.len() {
             line.remove(idx - 1);
@@ -82,16 +115,22 @@ pub fn backspace(contents: &mut FileConts, g_len: Vec<usize>) {
         let old_len = prev.len();
 
         prev.push_str(&removed);
-        contents.x_pos = old_len + g_len[contents.y_pos];
-    }
+        contents.x_pos = old_len + 8;
+        
 
+        // Check if it is necessary to scroll up, to prevent terminal size panics
+        if contents.top_bord > 0 && contents.y_pos <= contents.top_bord + 4 {
+            let mut cont_copy: FileConts = take(contents);
+            scroll_up(&mut cont_copy);
+        }
+    }
 }
 
-pub fn delete(contents: &mut FileConts, g_len: Vec<usize>) {
+pub fn delete(contents: &mut FileConts) {
     // Create variable for buffer's y axis
     let line = &mut contents.buffer[contents.y_pos];
     
-    let idx = contents.x_pos - g_len[contents.y_pos];
+    let idx = contents.x_pos - 8;
 
     if idx >= line.len() {
         return;

@@ -13,12 +13,12 @@ pub fn start(target_path: PathBuf) -> Result<()> {
     let contents = match load::load_file(target_path.clone()) {
         Ok(contents) => contents,
         Err(why) => {
-            eprintln!("Could not get contents: {why}");
+            eprintln!("\nCould not get contents: {why}");
             return Ok(());
         }
     };
     if let Err(why) = input::get_input(contents, target_path) {
-        println!("Could not get user input: {why}");
+        eprintln!("\nCould not get user input: {why}");
         return Ok(());
     }
     Ok(())

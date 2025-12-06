@@ -13,6 +13,7 @@ use crossterm::{
         enable_raw_mode,
         LeaveAlternateScreen,
         EnterAlternateScreen,
+        self,
     },
 };
 use crate::core::input::{
@@ -35,10 +36,12 @@ use std::io::{
 };
 use std::time::Duration;
 
+#[derive(Default)]
 pub struct FileConts {
     pub buffer: Vec<String>,
     pub x_pos: usize,
     pub y_pos: usize,
+    pub top_bord: usize,
     pub f_name: PathBuf,     //File name
     pub status: String,
 }
@@ -50,6 +53,7 @@ impl FileConts {
             // To allow line numbering
             x_pos: 8,
             y_pos: 0,
+            top_bord: 0,
             f_name: file_name,
             status: "Ctrl+s to save, Ctrl+q to quit".to_string(),
         }
@@ -69,7 +73,9 @@ impl FileConts {
 pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
 
     execute!(stdout(), EnterAlternateScreen, cursor::Show)?;
-    
+
+    let (_, text_height) = terminal::size()?;
+    text_height.saturating_sub(1) as usize;
 
     let mut contents = FileConts::new(f_name);
     
@@ -77,18 +83,18 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
         eprintln!("Failed to vectorize contents: {why}");
         return Ok(());
     }
-    
+
     enable_raw_mode()?;
 
     // This next bit is very ugly...
     
     'main: loop {
-        let gutter_len: Vec<usize> = match draw::draw(&mut contents) {
+        match draw::draw(&mut contents) {
             Err(why) => {
                 eprintln!("Error whilst drawing contents: {}", why);
                 return Ok(());
             }
-            Ok(val) => val,
+            Ok(_) => {}
         };
         
         if event::poll(Duration::from_millis(50))? {
@@ -111,41 +117,41 @@ pub fn get_input(file_contents: String, f_name: PathBuf) -> Result<()> {
                         }
                         // If any character is pressed, with either no or a shift modifier, insert
                         (KeyCode::Char(input), KeyModifiers::NONE) => {
-                            insert::insert_char(&mut contents, input, gutter_len.clone());
+                            insert::insert_char(&mut contents, input);
                         }
                         (KeyCode::Char(input), KeyModifiers::SHIFT) => {
-                            insert::insert_char(&mut contents, input, gutter_len.clone());
+                            insert::insert_char(&mut contents, input);
                         }
                         // If enter is pressed
                         (KeyCode::Enter, _) => {
-                            insert::insert_line(&mut contents, gutter_len.clone());
+                            insert::insert_line(&mut contents);
                         }
                         // If backspace is pressed
                         (KeyCode::Backspace, _) | (KeyCode::Char('\u{7f}'), _) | (KeyCode::Char('h'), KeyModifiers::CONTROL) => {
-                            insert::backspace(&mut contents, gutter_len.clone()); 
+                            insert::backspace(&mut contents); 
                         }
                         // If tab is pressed
                         (KeyCode::Tab, _) => {
                             for _i in 0..4 {
-                                insert::insert_char(&mut contents, ' ', gutter_len.clone());
+                                insert::insert_char(&mut contents, ' ');
                             }
                         }
                         // If delete is pressed
                         (KeyCode::Delete, _) => {
-                            insert::delete(&mut contents, gutter_len.clone());
+                            insert::delete(&mut contents);
                         }
                         // If arrow keys are pressed
                         (KeyCode::Left, _) => {
-                            move_left(&mut contents, gutter_len.clone());
+                            move_left(&mut contents);
                         }
                         (KeyCode::Right, _) => {
-                            move_right(&mut contents, gutter_len.clone());
+                            move_right(&mut contents);
                         }
                         (KeyCode::Up, _) => {
-                            move_up(&mut contents, gutter_len.clone());
+                            move_up(&mut contents);
                         }
                         (KeyCode::Down, _) => {
-                            move_down(&mut contents, gutter_len.clone()); 
+                            move_down(&mut contents, text_height.into()); 
                         }
                         _ => {}
                     }
